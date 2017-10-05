@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+.background{
+    background-color: #35373B !important;
+}
+
+.global-button{
+    background-color: #f44336 !important;
+}
+.picker__date-display {
+    background-color: #f44336 !important;
+}
+.btn-flat {
+    color: #f44336 !important;
+    padding-left:10px  !important;
+    padding-right:10px  !important;
+}
+.btn:hover, .btn-flat:focus{
+    background-color: #46484B  !important;
+}

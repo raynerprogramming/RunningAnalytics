@@ -1,0 +1,23 @@
+.nomargin {
+    margin:0
+}
+
+.mainview {
+    height:50vh;
+    background-color: aliceblue;
+}
+
+.picker__date-display{
+    background-color: #35373B !important;
+}
+
+.angSelect {
+        display: block;
+         position: static; 
+         width: auto; 
+         pointer-events: auto; 
+         height: 42px; 
+         top: auto; 
+         left: auto; 
+         opacity: 1; 
+}

@@ -1,0 +1,44 @@
+<div class="mainview nomargin">
+  <div class="row nomargin">
+    <div class="col s12">
+      <ul class="collection runlog">
+        <li *ngFor="let log of logs">
+          <div class="row nomargin">
+            <div class="col s2">
+              Date {{log.date}}
+            </div>
+            <div class="col s2">
+              Distance {{log.distance}}
+            </div>
+            <div class="col s2">
+              Time {{log.duration}}
+            </div>
+            <div class="col s2">
+              Pace {{log.distance/log.duration}}
+            </div>
+            <div class="col s2">
+              <div class="btn btn-flat" (click)="changeLog(log)">
+                Edit
+              </div>
+            </div>
+            <div class="col s2">
+              <div class="btn btn-flat" (click)="deleteLog(log._id)">
+                Delete
+              </div>
+            </div>
+          </div>
+          <div class="row nomargin">
+            <div class="col 12">
+              <ul class="collection">
+                Tags:
+                <li *ngFor="let tag of log.tags">
+                  {{tag.name}}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

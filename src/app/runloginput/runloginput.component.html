@@ -1,0 +1,58 @@
+<div class="mainview nomargin">
+  <h1 class="nomargin">Run Log</h1>
+  <div class="row nomargin">
+    <form class="col s10">
+      <div class="row nomargin">
+        {{log._id}}
+        <div class="input-field col s6">
+          <input id="distance" required [(ngModel)]="log.distance" name="distance" type="text" class="validate">
+          <label for="distance">Distance</label>
+        </div>
+        <div class="input-field col s6">
+          <div class="row">
+            <input id="newTag" required [(ngModel)]="newTag.name" name="distance" type="text" class="validate">
+            <label for="newTag">New Tag</label>
+            <div class="btn global-button" (click)="createTag()">
+              <span>Create Tag</span>
+            </div>
+          </div>
+          <div class="row">
+            <select id="tags" class="angSelect" name="selectTag" [(ngModel)]="selectedTag" (change)="selectTag($event)">
+              <option disabled selected>Please select...</option>
+              <option *ngFor="let tag of tags">{{ tag.name }}</option>
+          </select>
+            <div class="btn global-button" (click)="assignTag()">
+              <span>Assign Tag</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row nomargin">
+        <div class="input-field col s6">
+          <input id="duration" required [(ngModel)]="log.duration" name="duration" type="text" class="validate">
+          <label for="duration">Duration</label>
+        </div>
+      </div>
+      <div class="row nomargin">
+        <div class="input-field col s6">
+          <input id="date" required type="text" [(ngModel)]="log.date" name="date" materialize="pickadate">
+          <label for="date">Date</label>
+        </div>
+      </div>
+      <div class="row nomargin">
+        <div class="btn global-button" (click)="add(log)">
+          <span>Add Run</span>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="row nomargin">
+    <div class="col s12">
+      <ul class="collection runlog">
+        <li *ngFor="let runtag of log.tags">
+            {{runtag.name}}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

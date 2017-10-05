@@ -1,0 +1,8 @@
+.nomargin {
+    margin:0
+}
+
+.mainview {
+    min-height:100vh;
+    background-color: aliceblue;
+}

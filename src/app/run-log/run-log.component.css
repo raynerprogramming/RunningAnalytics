@@ -1,0 +1,23 @@
+.nomargin {
+    margin:0
+}
+
+.mainview {
+    height:50vh;
+    background-color: aliceblue;
+    overflow:auto;
+}
+
+.picker__date-display{
+    background-color: #35373B !important;
+}
+
+.runlog{
+    padding:0px;
+    min-height:30px;
+}
+
+.run-log-item-tags{
+    padding:2px !important;
+    min-height:30px !important;
+}

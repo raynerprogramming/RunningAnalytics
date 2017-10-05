@@ -1,0 +1,24 @@
+.navbar{
+    min-height:100vh !important;
+    background-color: #2f3136;
+}
+.navbarcollection{
+    border: 0;
+}
+
+.navbaritem{
+    background-color:#2f3136 !important;
+}
+
+.routeroutlet{
+    background-color: #35373B;
+}
+
+.nomargin {
+    margin:0
+}
+
+.mainview {
+    min-height:100vh;
+    background-color: aliceblue;
+}
