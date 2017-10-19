@@ -19,7 +19,7 @@ export class NedbService {
     });
   }
   getRunLogs(callback): RunLog[] {
-    return this.runLogdb.find({},callback);
+    return this.runLogdb.find({}, callback);
   }
   deleteRunLog(id: string): Boolean {
     return this.runLogdb.remove({ _id: id }, function (err, doc) {
@@ -32,26 +32,37 @@ export class NedbService {
     });
   }
   updateRunLog(log: RunLog): Boolean {
-    return this.runLogdb.update(log, function (err, doc) {
-      console.log('Removed RunLog: ', doc._id);
-    });
+    return this.runLogdb.update({ _id: log["_id"] },
+      {
+        $set: {
+          "distance": log.distance,
+          "date": log.date,
+          "duration": log.duration,
+          "tags": log.tags
+        }
+      },
+      {}
+      ,
+      function (err, doc) {
+        console.log('Removed RunLog: ', doc._id);
+      });
   }
 
-  createRunTag(tag: RunTag){
-    return this.runTagdb.insert(tag,function(err,doc){
+  createRunTag(tag: RunTag) {
+    return this.runTagdb.insert(tag, function (err, doc) {
       console.log('Add RunTag: ', doc._id);
     })
   }
-  getRunTag(id: string){
-    return this.runTagdb.findOne({_id:id}, function(err, doc){
+  getRunTag(id: string) {
+    return this.runTagdb.findOne({ _id: id }, function (err, doc) {
       console.log('Found RunTag: ', doc._id);
     })
   }
   getRunTags(callback): RunTag[] {
-    return this.runTagdb.find({}, callback);    
+    return this.runTagdb.find({}, callback);
   }
-  deleteRunTag(id: string): Boolean{
-    return this.runTagdb.remove({ _id:id}, function(err,doc){
+  deleteRunTag(id: string): Boolean {
+    return this.runTagdb.remove({ _id: id }, function (err, doc) {
       console.log('Removed RunTag: ', doc._id);
     })
   }

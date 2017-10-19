@@ -12,13 +12,21 @@ export class RunloginputComponent implements OnChanges {
   @Input() log: RunLog;
   @Input() tags: RunTag[];
   newTag: RunTag = new RunTag();
+  minutes: number;
+  hours: number;
+  seconds: number;
   selectedTag: RunTag;
   constructor(private storage: StorageService) {
-
+    
   }
 
   add(log) {
-    this.storage.createRunLog(log);
+    if (log._id) {
+      this.storage.updateRunLog(log);
+      this.log = new RunLog();
+    } else {
+      this.storage.createRunLog(log);
+    }
   }
   createTag(name) {
     this.storage.createRunTag(this.newTag);
@@ -35,12 +43,29 @@ export class RunloginputComponent implements OnChanges {
       this.log.tags.splice(index, 1);
     }
   }
-  selectTag($event){
-    this.selectedTag=this.tags.filter(function(obj){return obj.name==$event.target.value})[0];
+  selectTag($event) {
+    this.selectedTag = this.tags.filter(function (obj) { return obj.name == $event.target.value })[0];
+  }
+  updateDuration($event) {    
+  //  if (+this.minutes < 60 && +this.minutes >= 0 && +this.seconds < 60 && +this.seconds > 0)
+     // this.log.duration = +this.hours*3600 + +this.minutes * 60 + +this.seconds * 60
+  }
+  applyChanges(log){
+    if(+this.log.duration<1){
+      this.log.duration=Math.ceil(+this.log.duration*3600)
+      this.add(this.log);
+    }
+    if (this.log && this.log.duration) {
+      this.hours = Math.floor(this.log.duration/3600)
+      this.minutes = Math.floor(this.log.duration % 3600 / 60)
+      this.seconds = this.log.duration % 60
+    }
   }
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
     let msg: string[] = [];
+    this.applyChanges(changes.currentValue);
     for (let propName in changes) {
+      
       let changedProp = changes[propName];
       let to = JSON.stringify(changedProp.currentValue);
       if (changedProp.isFirstChange()) {

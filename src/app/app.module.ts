@@ -12,7 +12,6 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { MaterializeModule } from "angular2-materialize";
 import { RunlogmasterComponent } from './runlogmaster/runlogmaster.component';
 import { RunloginputComponent } from './runloginput/runloginput.component';
-import { RunLogItemComponent } from './run-log-item/run-log-item.component';
 import { NedbService } from './nedb.service';
 import { StorageService } from './storage.service';
 import { FormsModule } from '@angular/forms';
@@ -27,8 +26,7 @@ import { FormsModule } from '@angular/forms';
     ProgressComponent,
     DashboardComponent,
     RunlogmasterComponent,
-    RunloginputComponent,
-    RunLogItemComponent
+    RunloginputComponent
   ],
   imports: [
     BrowserModule,

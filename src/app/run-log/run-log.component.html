@@ -14,7 +14,7 @@
               Time {{log.duration}}
             </div>
             <div class="col s2">
-              Pace {{log.distance/log.duration}}
+              Pace {{log.distance/log.duration*3600}}
             </div>
             <div class="col s2">
               <div class="btn btn-flat" (click)="changeLog(log)">
