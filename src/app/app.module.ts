@@ -15,6 +15,10 @@ import { RunloginputComponent } from './runloginput/runloginput.component';
 import { NedbService } from './nedb.service';
 import { StorageService } from './storage.service';
 import { FormsModule } from '@angular/forms';
+import { FloorPipe } from 'angular-pipes/src/math/floor.pipe';
+import { OrderByPipe } from 'angular-pipes/src/array/order-by.pipe';
+import { CustomOrderBy } from './pipes';
+import { TagsComponent } from './tags/tags.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +30,11 @@ import { FormsModule } from '@angular/forms';
     ProgressComponent,
     DashboardComponent,
     RunlogmasterComponent,
-    RunloginputComponent
+    RunloginputComponent,
+    FloorPipe,
+    OrderByPipe,
+    CustomOrderBy,
+    TagsComponent
   ],
   imports: [
     BrowserModule,

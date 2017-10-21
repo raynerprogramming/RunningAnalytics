@@ -1,20 +1,49 @@
 <div class="mainview nomargin">
   <div class="row nomargin">
-    <div class="col s12">
-      <ul class="collection runlog">
-        <li *ngFor="let log of logs">
+    <div class="toolbar-fixed red row nopad nomarginbot ">
+      <ul class="col s8 nomarginbot nomargintop">
+        <li class="waves-effect waves-light col s3 toolbar-item">
+          <div>Date
+            <i class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
+        <li class="waves-effect waves-light col s3 toolbar-item">
+          <div>Date
+            <i class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
+        <li class="waves-effect waves-light col s3 toolbar-item">
+          <div>Date
+            <i class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
+        <li class="waves-effect waves-light col s3 toolbar-item">
+          <div>Date
+            <i class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
+      </ul>
+      <div class="col s2"></div>
+    </div>
+    <div class="col s10 nopad scrollview">
+      <ul class="collection runlog nopad nomargin col s12">
+        <li class="collection-item" [ngClass]="{'active':activelog._id == log._id}" *ngFor="let log of logs | customOrderBy: order">
           <div class="row nomargin">
             <div class="col s2">
-              Date {{log.date}}
+              Date {{log.date | date:'yMd'}}
             </div>
             <div class="col s2">
-              Distance {{log.distance}}
+              Distance {{log.distance | number:'1.2-2'}}
             </div>
             <div class="col s2">
-              Time {{log.duration}}
+              HH: {{log.duration/3600 | floor}} MM: {{log.duration % 3600 / 60 | floor}} SS: {{log.duration % 60 | floor}}
             </div>
             <div class="col s2">
-              Pace {{log.distance/log.duration*3600}}
+              Pace {{log.distance/log.duration*3600 | number:'1.2-2'}}
             </div>
             <div class="col s2">
               <div class="btn btn-flat" (click)="changeLog(log)">
@@ -27,16 +56,7 @@
               </div>
             </div>
           </div>
-          <div class="row nomargin">
-            <div class="col 12">
-              <ul class="collection">
-                Tags:
-                <li *ngFor="let tag of log.tags">
-                  {{tag.name}}
-                </li>
-              </ul>
-            </div>
-          </div>
+          <app-tags [log]="log"></app-tags>
         </li>
       </ul>
     </div>

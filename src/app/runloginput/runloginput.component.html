@@ -10,7 +10,7 @@
         <div class="input-field col s6">
           <div class="row">
             <div class="col s9">
-              <input id="newTag" required [(ngModel)]="newTag.name" name="distance" type="text" class="validate">
+              <input id="newTag" required [(ngModel)]="newTag.name" name="newTag" type="text" class="validate">
               <label for="newTag">New Tag</label>
             </div>
             <div class="btn global-button col s3" (click)="createTag()">
@@ -53,15 +53,7 @@
           <span>Add Run</span>
         </div>
       </div>
-      <div class="row nomargin">
-        <div class="col s12">
-          <ul class="collection runlog">
-            <li ng-if="log.tags" *ngFor="let runtag of log.tags">
-              {{runtag.name}}
-            </li>
-          </ul>
-        </div>
-      </div>
+      <app-tags [log]="log"></app-tags>
     </form>
   </div>
 </div>

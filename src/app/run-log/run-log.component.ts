@@ -10,7 +10,9 @@ import { StorageService } from '../storage.service'
 })
 export class RunLogComponent implements OnChanges {
   @Input() logs: RunLog[];
+  @Input() activelog: RunLog;
   @Input() tags: RunTag[];
+  sortBy:string = "date";
 
 
   @Output() changeSelectedLog: EventEmitter<any> = new EventEmitter();
@@ -24,6 +26,9 @@ export class RunLogComponent implements OnChanges {
    }
    changeLog(log: RunLog) {
     this.changeSelectedLog.emit(log);
+  }
+  changeSortBy(sortBy:string){
+    this.sortBy=sortBy;
   }
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
     let log: string[] = [];

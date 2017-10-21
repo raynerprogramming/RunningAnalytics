@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { StorageService } from '../storage.service';
 import { RunTag } from '../run-tag';
 import { RunLog } from '../run-log';
