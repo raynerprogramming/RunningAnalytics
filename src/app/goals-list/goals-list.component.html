@@ -27,43 +27,44 @@
           </div>
         </li>
         <li class="col s2 toolbar-item">
-            <div (click)="changeSortBy('VO2Max')">VO2Max
-              <i *ngIf="sortBy=='VO2Max' && asc" class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
-              <i *ngIf="sortBy=='VO2Max' && !asc" class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
-            </div>
-          </li>
+          <div (click)="changeSortBy('VO2Max')">Pace
+            <i *ngIf="sortBy=='VO2Max' && asc" class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i *ngIf="sortBy=='VO2Max' && !asc" class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
       </ul>
       <div class="col s2"></div>
     </div>
     <div class="col s10 nopad scrollview">
       <ul class="collection runlog nopad nomargin col s12">
-        <li class="collection-item" [ngClass]="{'active':activelog._id == log._id}" *ngFor="let log of logs | customOrderBy: sortBy:asc">
+        <li class="collection-item" [ngClass]="{'active':activeGoal._id == goal._id}" *ngFor="let goal of goals | customOrderBy: sortBy:asc">
           <div class="row nomargin">
             <div class="col s2">
-              Date {{log.date | date:'yMd'}}
+              Date {{goal.date | date:'yMd'}}
             </div>
             <div class="col s2">
-              Distance {{log.distance | number:'1.2-2'}}
+              Distance {{goal.distance | number:'1.2-2'}}
             </div>
             <div class="col s2">
-              HH: {{log.duration/3600 | floor}} MM: {{log.duration % 3600 / 60 | floor}} SS: {{log.duration % 60 | floor}}
+              HH: {{goal.duration/3600 | floor}} MM: {{goal.duration % 3600 / 60 | floor}} SS: {{goal.duration % 60 | floor}}
             </div>
             <div class="col s2">
-              Pace {{runCalc.Pace(log) | number:'1.2-2'}}
+              Pace: {{runCalc.Pace(goal) | number:'1.2-2'}}
             </div>
             <div class="col s2">
-              VO2MAX: {{runCalc.VO2Max(log) | number:'1.2-2'}}
+              VO2Max: {{runCalc.VO2Max(goal)| number:'1.2-2'}}
             </div>
             <div class="col s2">
-                <div class="btn btn-flat" (click)="changeLog(log)">
-                    Edit
-                  </div>
-              <div class="btn btn-flat" (click)="deleteLog(log._id)">
+              <div class="btn btn-flat" (click)="changeGoal(goal)">
+                Edit
+              </div>
+            </div>
+            <div class="col s2">
+              <div class="btn btn-flat" (click)="deleteGoal(goal._id)">
                 Delete
               </div>
             </div>
           </div>
-          <app-tags [log]="log"></app-tags>
         </li>
       </ul>
     </div>

@@ -1,0 +1,37 @@
+<div class="mainview nomargin">
+  <h1 class="nomargin">Goals</h1>
+  <div class="row nomargin">
+    <form class="col s10">
+      <div class="row nomargin">
+        <div class="input-field col s6">
+          <input id="distance" required [(ngModel)]="goal.distance" name="distance" type="text" class="validate">
+          <label for="distance">Distance</label>
+        </div>
+      </div>
+      <div class="row nomargin">
+        <div class="input-field col s2">
+          <input id="duration" required [(ngModel)]="hours" name="hours" (ngModelChange)="updateDuration($event)" type="text" class="validate">
+          <label for="hours">Hours</label>
+        </div>
+        <div class="input-field col s2">
+          <input id="duration" required [(ngModel)]="minutes" name="minutes" (ngModelChange)="updateDuration($event)" type="text" class="validate">
+          <label for="minutes">Minutes</label>
+        </div>
+        <div class="input-field col s2">
+          <input id="duration" required [(ngModel)]="seconds" name="seconds" (ngModelChange)="updateDuration($event)" type="text" class="validate">
+          <label for="seconds">Seconds</label>
+        </div>
+      </div>
+      
+      <div class="row nomargin">
+        <div class="input-field col s6">
+          <input id="date" required type="text" [(ngModel)]="goal.date" name="date" materialize="pickadate">
+          <label for="date">Date</label>
+        </div>
+        <div ng-if="goal._id" class="btn global-button col s3 right" (click)="add(goal)">
+          <span>Add Goal</span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

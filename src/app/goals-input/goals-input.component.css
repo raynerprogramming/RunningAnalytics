@@ -1,0 +1,12 @@
+.nomargin {
+    margin:0
+}
+
+.mainview {
+    height:50vh;
+    background-color: aliceblue;
+}
+
+.picker__date-display{
+    background-color: #35373B !important;
+}

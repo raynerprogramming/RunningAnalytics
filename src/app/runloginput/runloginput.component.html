@@ -49,8 +49,9 @@
           <input id="date" required type="text" [(ngModel)]="log.date" name="date" materialize="pickadate">
           <label for="date">Date</label>
         </div>
-        <div ng-if="log._id" class="btn global-button col s3 right" (click)="add(log)">
-          <span>Add Run</span>
+        <div class="btn global-button col s3 right" (click)="add(log)">
+          <span *ngIf="!log._id">Add Run</span>
+          <span *ngIf="log._id">Update Run</span>
         </div>
       </div>
       <app-tags [log]="log"></app-tags>

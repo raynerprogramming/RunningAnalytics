@@ -1,32 +1,30 @@
 import { Component, OnChanges, Input, SimpleChange, Output, EventEmitter } from '@angular/core';
-import { MaterializeDirective } from 'angular2-materialize';
-import { RunLog } from '../run-log'
-import { RunTag } from '../run-tag'
+import { RunGoal } from '../run-goal';
 import { StorageService } from '../storage.service'
 import { CalculationsService } from '../calculations.service'
+
 @Component({
-  selector: 'app-run-log',
-  templateUrl: './run-log.component.html',
-  styleUrls: ['./run-log.component.css']
+  selector: 'app-goals-list',
+  templateUrl: './goals-list.component.html',
+  styleUrls: ['./goals-list.component.css']
 })
-export class RunLogComponent implements OnChanges {
-  @Input() logs: RunLog[];
-  @Input() activelog: RunLog;
-  @Input() tags: RunTag[];
+export class GoalsListComponent implements OnChanges {
+  @Input() goals: RunGoal[];
+  @Input() activeGoal: RunGoal;
   sortBy: string = "date";
   asc: boolean = true;
 
-  @Output() changeSelectedLog: EventEmitter<any> = new EventEmitter();
+  @Output() changeSelectedGoal: EventEmitter<any> = new EventEmitter();
   constructor(private storage: StorageService, private runCalc: CalculationsService) { }
 
   deleteLog(id: string) {
     this.storage.deleteRunLog(id);
     this.storage.getRunLogs((err, doc) => {
-      this.logs = doc;
+      this.goals = doc;
     });
   }
-  changeLog(log: RunLog) {
-    this.changeSelectedLog.emit(log);
+  changeGoal(goal: RunGoal) {
+    this.changeSelectedGoal.emit(goal);
   }
   changeSortBy(sortBy: string) {
     if (this.sortBy == sortBy) {
