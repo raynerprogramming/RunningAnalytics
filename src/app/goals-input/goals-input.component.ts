@@ -34,6 +34,9 @@ export class GoalsInputComponent implements OnChanges {
     if (goal._id) {
       this.storage.updateRunGoal(goal);
       this.goal = new RunGoal();
+      this.hours = 0;
+      this.minutes= 0;
+      this.seconds = 0;
     } else {
       this.storage.createRunGoal(goal);
     }
@@ -46,27 +49,9 @@ export class GoalsInputComponent implements OnChanges {
     }
   }
   updateDuration($event) {
-    var duration: number = 0;
-    if (this.isNumeric(this.hours)) {
-      if (+this.hours >= 0 && +this.hours < 24) {
-        duration += +this.hours * 3600;
-      }
-    }
-    if (this.isNumeric(this.minutes)) {
-      if (+this.minutes >= 0 && +this.minutes < 60) {
-        duration += +this.minutes * 60;
-      }
-    }
-    if (this.isNumeric(this.seconds)) {
-      if (+this.seconds >= 0 && +this.seconds < 60) {
-        duration += +this.seconds;
-      }
-    }
-    this.goal.duration = duration;
+    this.goal.duration = this.runCalc.Duration(this.hours,this.minutes,this.seconds);
   }
 
-  isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  }
+  
 
 }

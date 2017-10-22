@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { StorageService } from '../storage.service';
+import { CalculationsService } from '../calculations.service';
 import { RunTag } from '../run-tag';
 import { RunLog } from '../run-log';
 
@@ -17,20 +18,17 @@ export class RunloginputComponent implements OnChanges {
   hours: number;
   seconds: number;
   selectedTag: RunTag;
-  constructor(private storage: StorageService) {
+  constructor(private storage: StorageService,private runCalc: CalculationsService) {
 
   }
 
   add(log) {
-    if (log._id) {
-      var temp = new RunLog();
-      temp.date=log.date;
-      temp.duration=log.duration;
-      temp.distance=log.distance
-      temp.tags=log.tags;
-      temp["_id"]=log["_id"];
-      this.storage.updateRunLog(temp);
+    if (log._id) {   
+      this.storage.updateRunLog(log);
       this.log = new RunLog();
+      this.hours = 0;
+      this.minutes= 0;
+      this.seconds = 0;
     } else {
       this.storage.createRunLog(log);
     }
@@ -54,9 +52,7 @@ export class RunloginputComponent implements OnChanges {
     this.selectedTag = this.tags.filter(function (obj) { return obj.name == $event.target.value })[0];
   }
   updateDuration($event) {
-    if (+this.minutes < 60 && +this.minutes >= 0 && +this.seconds < 60 && +this.seconds > 0) {
-      this.log.duration = +this.hours * 3600 + +this.minutes * 60 + +this.seconds;
-    }
+    this.log.duration = this.runCalc.Duration(this.hours,this.minutes,this.seconds);
   }
   applyChanges(log) {
     if (this.log && this.log.duration) {
