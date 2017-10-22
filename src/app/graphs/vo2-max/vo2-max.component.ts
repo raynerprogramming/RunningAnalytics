@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { StorageService } from "../../storage.service"
-import * as d3 from "d3";
+import * as D3 from "d3";
 
 @Component({
   selector: 'app-vo2-max',
@@ -8,70 +8,100 @@ import * as d3 from "d3";
   styleUrls: ['./vo2-max.component.css']
 })
 
-export class VO2MaxComponent {
-  @ViewChild("containerPieChart") element: ElementRef;
+export class VO2MaxComponent implements AfterViewInit {
+  
+    @ViewChild('container') element: ElementRef;
+  
+    private host;
+    private svg;
+    private margin;
+    private width;
+    private height;
+    private xScale;
+    private yScale;
+    private xAxis;
+    private yAxis;
+    private htmlElement: HTMLElement;
 
-  private width: number;
-  private height: number;
-  private radius: number;
-  private htmlElement: HTMLElement;
+  ngAfterViewInit() {
+    this.htmlElement = this.element.nativeElement;
+    this.host = D3.select(this.htmlElement);
+    this.setup();
+  }
 
-  constructor(private storage: StorageService) {
-    var svg = d3.select("svg"),
-      margin = { top: 20, right: 20, bottom: 30, left: 50 },
-      width = +svg.attr("width") - margin.left - margin.right,
-      height = +svg.attr("height") - margin.top - margin.bottom,
-      g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  ngOnChanges(): void {
+    this.setup();
+  }
 
-    var parseTime = d3.timeParse("%d-%b-%y");
+  onCurveChange(curve: string) {
+    this.setup();
+  }
 
-    var x = d3.scaleTime()
-      .rangeRound([0, width]);
+  private setup(): void {
+    this.margin = {top: 20, right: 20, bottom: 30, left: 50};
+    this.width = 960 - this.margin.left - this.margin.right;
+    this.height = 500 - this.margin.top - this.margin.bottom;
+    this.xScale = D3.scaleTime().range([0, this.width]);
+    this.yScale = D3.scaleLinear().range([this.height, 0]);
+    this.buildChart();
+  }
 
-    var y = d3.scaleLinear()
-      .rangeRound([height, 0]);
+  private buildChart() {
+    this.xAxis = D3.axisBottom(this.xScale);
+    this.yAxis = D3.axisLeft(this.yScale);
 
-    var data = [{ "date": "24-Apr-07", "close": 93.24 },
-    { "date": "25-Apr-07", "close": 95.35 }, { "date": "26-Apr-07", "close": 98.84 }, { "date": "27-Apr-07", "close": 99.92 }]
+    this.host.html('');
 
-    var line = d3.line()
-      .x(function (d) { return x(d.date); })
-      .y(function (d) { return y(d.close); });
+    let self = this;
 
-    d3.tsv("data.tsv", function (d) {
-      d.date = parseTime(d.date);
-      d.close = d.close;
-      return d;
-    }, function (error, data) {
-      if (error) throw error;
+    let line = D3.line()
+      .curve(D3.curveLinear)
+      .x(function(d: any) { return self.xScale(d.date); })
+      .y(function(d: any) { return self.yScale(d.close); });
 
-      x.domain(d3.extent(data, function (d) { return d.date; }));
-      y.domain(d3.extent(data, function (d) { return d.close; }));
+    this.svg = this.host.append('svg')
+      .attr('width', this.width + this.margin.left + this.margin.right)
+      .attr('height', this.height + this.margin.top + this.margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
-      g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
-        .select(".domain")
-        .remove();
+    D3.tsv('assets/testdata.tsv', this.type, function(error, data) {
+      if (error) {
+        throw error;
+      }
 
-      g.append("g")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("fill", "#000")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "0.71em")
-        .attr("text-anchor", "end")
-        .text("Price ($)");
+      self.xScale.domain(D3.extent(data, function(d: any) { return d.date; }));
+      self.yScale.domain(D3.extent(data, function(d: any) { return d.close; }));
 
-      g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);
+      self.svg.append('g')
+          .attr('class', 'x axis')
+          .attr('transform', 'translate(0,' + self.height + ')')
+          .call(self.xAxis);
+
+      self.svg.append('g')
+          .attr('class', 'y axis')
+          .call(self.yAxis)
+          .append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', 6)
+          .attr('dy', '.71em')
+          .style('text-anchor', 'end')
+          .text('Price ($)');
+
+      self.svg.append('path')
+          .datum(data)
+          .attr('class', 'line')
+          .attr('d', line);
     });
+  }
+
+  private type(d: any) {
+    const formatDate = D3.timeParse('%d-%b-%y');
+
+    d.date = formatDate(d.date);
+    d.close = +d.close;
+
+    return d;
+  }
 
   }
