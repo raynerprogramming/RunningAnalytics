@@ -152,7 +152,29 @@ export class VO2MaxComponent implements AfterViewInit {
         .datum(progressToGoal)
         .attr('class', 'line')
         .attr('d', goalLine)
-        .attr('stroke', this.rgb(colors[lineCount][0],colors[lineCount][1],colors[lineCount][2]));
+        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
+
+      var pathContainers = self.svg.selectAll('g.line')
+        .data(progressToGoal);
+
+      pathContainers.enter().append('g')
+        .attr('class', 'line')
+        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
+
+      pathContainers.selectAll('path')
+        .data(progressToGoal) // continues the data from the pathContainer
+        .enter().append('path')
+        .attr('d', goalLine);
+
+      // add circles
+      pathContainers.selectAll('circle')
+        .data(progressToGoal)
+        .enter().append('circle')
+        .attr('cx', function (d) { return self.xScale(new Date(d.date)); })
+        .attr('cy', function (d) { return self.yScale(calc.VO2Max(d)); })
+        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
+        .attr('r', 3);
+
       lineCount++;
     })
 
@@ -160,7 +182,7 @@ export class VO2MaxComponent implements AfterViewInit {
       .datum(this.logs)
       .attr('class', 'line')
       .attr('d', line)
-      .attr('stroke', this.rgb(colors[lineCount][0],colors[lineCount][1],colors[lineCount][2]));
+      .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
     lineCount++;
   }
 
