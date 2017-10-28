@@ -57,7 +57,7 @@ import { VO2MaxComponent } from './graphs/vo2-max/vo2-max.component';
         component: RunCompareComponent
       },
       {
-        path: 'Progress',
+        path: 'Progress', 
         component: VO2MaxComponent
       },
       {

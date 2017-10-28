@@ -17,9 +17,9 @@ export class GoalsListComponent implements OnChanges {
   @Output() changeSelectedGoal: EventEmitter<any> = new EventEmitter();
   constructor(private storage: StorageService, private runCalc: CalculationsService) { }
 
-  deleteLog(id: string) {
-    this.storage.deleteRunLog(id);
-    this.storage.getRunLogs((err, doc) => {
+  deleteGoal(id: string) {
+    this.storage.deleteRunGoal(id);
+    this.storage.getRunGoals((err, doc) => {
       this.goals = doc;
     });
   }

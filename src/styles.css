@@ -17,3 +17,9 @@
 .btn:hover, .btn-flat:focus{
     background-color: #46484B  !important;
 }
+
+.line {
+    fill: none !important;
+    stroke: #2ecc71 !important; 
+    stroke-width: 1.5px !important;
+  } 

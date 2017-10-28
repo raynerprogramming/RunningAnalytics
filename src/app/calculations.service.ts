@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { RunGoal } from './run-goal'
+import { Calculations } from './calculations'
+
 @Injectable()
-export class CalculationsService {
+export class CalculationsService implements Calculations {
 
   constructor() { }
+  
   Pace(goal: RunGoal): number {
     return goal.distance / (goal.duration / 3600);
   }
