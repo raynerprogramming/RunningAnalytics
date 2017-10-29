@@ -102,88 +102,162 @@ export class VO2MaxComponent implements AfterViewInit {
 
 
 
-    this.xAxis = D3.axisBottom(this.xScale);
-    this.yAxis = D3.axisLeft(this.yScale);
+    // this.xAxis = D3.axisBottom(this.xScale);
+    // this.yAxis = D3.axisLeft(this.yScale);
 
-    this.host.html('');
+    // this.host.html('');
 
-    let self = this;
+    // let self = this;
     let calc = this.runCalc;
+    let rgb = this.rgb;
 
-    this.svg = this.host.append('svg')
-      .attr('width', this.width + this.margin.left + this.margin.right)
-      .attr('height', this.height + this.margin.top + this.margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+    // this.svg = this.host.append('svg')
+    //   .attr('width', this.width + this.margin.left + this.margin.right)
+    //   .attr('height', this.height + this.margin.top + this.margin.bottom)
 
-    self.svg.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', 'translate(0,' + self.height + ')')
-      .call(self.xAxis);
+    // var line = D3.line()
+    //   .curve(D3.curveLinear)
+    //   .x(function (d: any) { return self.xScale(new Date(d.date)); })
+    //   .y(function (d: any) { return self.yScale(calc.VO2Max(d)); });
 
-    self.svg.append('g')
-      .attr('class', 'y axis')
-      .call(self.yAxis)
-      .append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('y', 6)
-      .attr('dy', '.71em')
-      .style('text-anchor', 'end')
-      .text('Price ($)');
+    // self.xScale.domain(D3.extent(this.combined, function (d: RunGoal) { return new Date(d.date); }));
+    // self.yScale.domain(D3.extent(this.combined, function (d: RunGoal) { return calc.VO2Max(d) }));
 
-    var line = D3.line()
-      .curve(D3.curveLinear)
-      .x(function (d: any) { return self.xScale(new Date(d.date)); })
-      .y(function (d: any) { return self.yScale(calc.VO2Max(d)); });
-
-    self.xScale.domain(D3.extent(this.combined, function (d: RunGoal) { return new Date(d.date); }));
-    self.yScale.domain(D3.extent(this.combined, function (d: RunGoal) { return calc.VO2Max(d) }));
-
+    var graphGoals = new Array<Array<RunGoal>>();
     this.goals.forEach((goal) => {
       var progressToGoal = new Array<RunGoal>();
       progressToGoal.push(firstLog);
       progressToGoal.push(goal);
-      var goalLine = D3.line()
-        .curve(D3.curveLinear)
-        .x(function (d: any) { return self.xScale(new Date(d.date)); })
-        .y(function (d: any) { return self.yScale(calc.VO2Max(d)); });
+      graphGoals.push(progressToGoal);
+    });
+    graphGoals.push(this.logs);
 
-      self.svg.append('path')
-        .datum(progressToGoal)
-        .attr('class', 'line')
-        .attr('d', goalLine)
-        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
+    var w = 1000;
+    var h = 600;
+    var padding = 100;
 
-      var pathContainers = self.svg.selectAll('g.line')
-        .data(progressToGoal);
+    var color_hash = {
+      0: ["apple", "green"],
+      1: ["mango", "orange"],
+      2: ["cherry", "red"]
+    }
 
-      pathContainers.enter().append('g')
-        .attr('class', 'line')
-        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
+    // Define axis ranges & scales        
+    var yExtents = D3.extent(D3.merge(graphGoals), function (d: RunGoal) { return calc.VO2Max(d) });
+    var xExtents = D3.extent(D3.merge(graphGoals), function (d: RunGoal) { return new Date(d.date); });
 
-      pathContainers.selectAll('path')
-        .data(progressToGoal) // continues the data from the pathContainer
-        .enter().append('path')
-        .attr('d', goalLine);
+    var xScale = D3.scaleTime()
+      .domain([xExtents[0], xExtents[1]])
+      .range([padding, w - padding * 2]);
 
-      // add circles
-      pathContainers.selectAll('circle')
-        .data(progressToGoal)
-        .enter().append('circle')
-        .attr('cx', function (d) { return self.xScale(new Date(d.date)); })
-        .attr('cy', function (d) { return self.yScale(calc.VO2Max(d)); })
-        .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
-        .attr('r', 3);
+    var yScale = D3.scaleLinear()
+      .domain([0, yExtents[1]])
+      .range([h - padding, padding]);
 
-      lineCount++;
-    })
 
-    self.svg.append('path')
-      .datum(this.logs)
-      .attr('class', 'line')
+    // Create SVG element
+    var svg = this.host
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+    // Define lines
+    var line = D3.line<RunGoal>()
+      .curve(D3.curveLinear)
+      .x(function (d) { return xScale(new Date(d.date)); })
+      .y(function (d) { return yScale(calc.VO2Max(d)); })
+
+    var pathContainers = svg.selectAll('g')
+      .data(graphGoals);
+
+    pathContainers.enter().append('g')
+      .append('path')
       .attr('d', line)
-      .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
-    lineCount++;
+      .attr('class', 'line')
+      .attr('stroke', function(d) { rgb(colors[graphGoals.indexOf(d)])});
+      
+    // add circles
+    svg.selectAll('g')
+      .data(graphGoals)
+      .selectAll('circle')
+      .data(function (d) { return d; })
+      .enter().append('circle')
+      .attr('cx', function (d) { return xScale(new Date(d.date)); })
+      .attr('cy', function (d) { return yScale(calc.VO2Max(d)); })
+      .attr('r', 3);
+
+    //Define X axis
+    var xAxis = D3.axisBottom(xScale)
+      .ticks(5);
+
+    //Define Y axis
+    var yAxis = D3.axisLeft(yScale)
+      .ticks(5);
+
+    //Add X axis
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0," + (h - padding) + ")")
+      .call(xAxis);
+
+    //Add Y axis
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + padding + ",0)")
+      .call(yAxis);
+
+    // Add title	  
+    svg.append("svg:text")
+      .attr("class", "title")
+      .attr("x", 20)
+      .attr("y", 20)
+      .text("Fruit Sold Per Hour");
+
+
+    // add legend   
+    var legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("x", w - 65)
+      .attr("y", 25)
+      .attr("height", 100)
+      .attr("width", 100);
+
+    legend.selectAll('g').data(graphGoals)
+      .enter()
+      .append('g')
+      .each(function (d, i) {
+        var g = D3.select(this);
+        g.append("rect")
+          .attr("x", w - 65)
+          .attr("y", i * 25)
+          .attr("width", 10)
+          .attr("height", 10)
+          .style("fill", "red");
+
+        g.append("text")
+          .attr("x", w - 50)
+          .attr("y", i * 25 + 8)
+          .attr("height", 30)
+          .attr("width", 100)
+          .style("fill", "red")
+          .text("red");
+
+      });
+
+    // self.svg.append('path')
+    //   .datum(this.logs)
+    //   .attr('class', 'line')
+    //   .attr('d', line)
+    //   .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
+
+    // // add circles
+    // self.svg.selectAll('circle')
+    //   .data(this.logs)
+    //   .enter().append('circle')
+    //   .attr('cx', function (d) { return self.xScale(new Date(d.date)); })
+    //   .attr('cy', function (d) { return self.yScale(calc.VO2Max(d)); })
+    //   .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
+    //   .attr('fill', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
+    //   .attr('r', 3);
   }
 
   graph(): void {
@@ -284,8 +358,8 @@ export class VO2MaxComponent implements AfterViewInit {
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
   }
-  rgb(r, g, b) {
-    return "rgb(" + r + "," + g + "," + b + ")";
+  rgb(rgb) {
+    return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
   }
 
 }
