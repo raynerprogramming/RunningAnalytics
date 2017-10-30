@@ -110,6 +110,7 @@ export class VO2MaxComponent implements AfterViewInit {
     // let self = this;
     let calc = this.runCalc;
     let rgb = this.rgb;
+    let getText = this.getText;
 
     // this.svg = this.host.append('svg')
     //   .attr('width', this.width + this.margin.left + this.margin.right)
@@ -130,11 +131,12 @@ export class VO2MaxComponent implements AfterViewInit {
       progressToGoal.push(goal);
       graphGoals.push(progressToGoal);
     });
+    this.logs[this.logs.length-1].tags = new Array();
     graphGoals.push(this.logs);
 
-    var w = 1000;
+    var w = 1250;
     var h = 600;
-    var padding = 100;
+    var padding = 50;
 
     var color_hash = {
       0: ["apple", "green"],
@@ -148,7 +150,7 @@ export class VO2MaxComponent implements AfterViewInit {
 
     var xScale = D3.scaleTime()
       .domain([xExtents[0], xExtents[1]])
-      .range([padding, w - padding * 2]);
+      .range([padding, w - padding * 2 - 300]);
 
     var yScale = D3.scaleLinear()
       .domain([0, yExtents[1]])
@@ -160,23 +162,28 @@ export class VO2MaxComponent implements AfterViewInit {
       .append("svg")
       .attr("width", w)
       .attr("height", h);
+
+    var graphSvg = svg  
+      .append("svg")
+      .attr("width", w - 300)
+      .attr("height", h);
     // Define lines
     var line = D3.line<RunGoal>()
       .curve(D3.curveLinear)
       .x(function (d) { return xScale(new Date(d.date)); })
       .y(function (d) { return yScale(calc.VO2Max(d)); })
 
-    var pathContainers = svg.selectAll('g')
+    var pathContainers = graphSvg.selectAll('g')
       .data(graphGoals);
 
     pathContainers.enter().append('g')
       .append('path')
       .attr('d', line)
       .attr('class', 'line')
-      .attr('stroke', function(d) { rgb(colors[graphGoals.indexOf(d)])});
-      
+      .attr('stroke', function (d) { return rgb(colors[graphGoals.indexOf(d)]) });
+
     // add circles
-    svg.selectAll('g')
+    graphSvg.selectAll('g')
       .data(graphGoals)
       .selectAll('circle')
       .data(function (d) { return d; })
@@ -194,19 +201,19 @@ export class VO2MaxComponent implements AfterViewInit {
       .ticks(5);
 
     //Add X axis
-    svg.append("g")
+    graphSvg.append("g")
       .attr("class", "axis")
       .attr("transform", "translate(0," + (h - padding) + ")")
       .call(xAxis);
 
     //Add Y axis
-    svg.append("g")
+    graphSvg.append("g")
       .attr("class", "axis")
       .attr("transform", "translate(" + padding + ",0)")
       .call(yAxis);
 
     // Add title	  
-    svg.append("svg:text")
+    graphSvg.append("svg:text")
       .attr("class", "title")
       .attr("x", 20)
       .attr("y", 20)
@@ -216,30 +223,36 @@ export class VO2MaxComponent implements AfterViewInit {
     // add legend   
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("x", w - 65)
+      .attr("x", w - 300)
       .attr("y", 25)
-      .attr("height", 100)
-      .attr("width", 100);
+      .attr("height", 300)
+      .attr("width", 300);
 
-    legend.selectAll('g').data(graphGoals)
+    var legendData = new Array<RunGoal>();
+
+    graphGoals.forEach((d) => {
+      legendData.push(d[d.length - 1]);
+    })
+
+    legend.selectAll('g').data(legendData)
       .enter()
       .append('g')
       .each(function (d, i) {
         var g = D3.select(this);
         g.append("rect")
-          .attr("x", w - 65)
-          .attr("y", i * 25)
+          .attr("x", w - 300)
+          .attr("y", i * 25+50)
           .attr("width", 10)
           .attr("height", 10)
-          .style("fill", "red");
+          .style("fill", rgb(colors[i]));
 
         g.append("text")
-          .attr("x", w - 50)
-          .attr("y", i * 25 + 8)
-          .attr("height", 30)
-          .attr("width", 100)
-          .style("fill", "red")
-          .text("red");
+          .attr("x", w - 300 + 15)
+          .attr("y", i * 25 + 60)
+          .attr("height", 300)
+          .attr("width", 300)
+          .style("fill", rgb(colors[i]))
+          .text(getText(d, i));
 
       });
 
@@ -360,6 +373,9 @@ export class VO2MaxComponent implements AfterViewInit {
   }
   rgb(rgb) {
     return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+  }
+  getText(d: any, i) {
+    return d.tags ? "RunLog" : "Goal: " + moment(d.date).format("MM-DD-YYYY") + " distance: " + d.distance;
   }
 
 }
