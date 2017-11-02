@@ -31,6 +31,9 @@ export class VO2MaxComponent implements AfterViewInit {
   private xAxis;
   private yAxis;
   private goals: RunGoal[];
+  private graphGoals: RunGoal[][];
+  private legendData: RunGoal[];
+  private colors: string[];
   private logs: RunLog[];
   private combined: RunGoal[] = new Array<RunGoal>();
   private htmlElement: HTMLElement;
@@ -57,6 +60,7 @@ export class VO2MaxComponent implements AfterViewInit {
     this.yScale = D3.scaleLinear().range([this.height, 0]);
     this.storage.getRunGoals((err, doc) => {
       this.goals = doc;
+      this.goals.every(x => x.active = true);
       this.goals.sort((a: RunGoal, b: RunGoal) => {
         var momentA = moment(a.date);
         var momentB = moment(b.date);
@@ -68,10 +72,14 @@ export class VO2MaxComponent implements AfterViewInit {
         }
         return 0;
       })
+      var totalLines = this.goals.length + 1;
+      this.colors = this.getColorsArray(totalLines);
+      this.buildChartData();
       this.buildChart();
     });
     this.storage.getRunLogs((err, doc) => {
       this.logs = doc;
+      this.logs.every(x => x.active = true);
       this.logs.sort((a: RunLog, b: RunLog) => {
         var momentA = moment(a.date);
         var momentB = moment(b.date);
@@ -83,70 +91,59 @@ export class VO2MaxComponent implements AfterViewInit {
         }
         return 0;
       })
+      this.buildChartData();
       this.buildChart();
     });
 
+
+  }
+  private toggleActive(goal: RunGoal) {
+    this.goals.find(x => x.distance == goal.distance && x.date == goal.date && x.duration == goal.duration).active = !goal.active;
+    this.legendData.find(x => x.distance == goal.distance && x.date == goal.date && x.duration == goal.duration).active = !goal.active;
+    var svg = this.host.select('svg');
+    svg.remove();
+    this.buildChartData();
+    this.buildChart();
   }
 
-  private buildChart() {
+  private buildChartData() {
     if (!this.goals || !this.logs) {
       return;
     }
+    this.legendData = new Array<RunGoal>();
+    this.graphGoals = new Array<Array<RunGoal>>();
+    this.goals.forEach((goal) => {
+      var progressToGoal = new Array<RunGoal>();
+      progressToGoal.push(this.logs[0]);
+      progressToGoal.push(goal);
+      this.graphGoals.push(progressToGoal);
+    });
+    //this.logs[this.logs.length - 1].tags = new Array();
+    this.graphGoals.push(this.logs);
 
-    this.combined = this.combined.concat(this.goals);
+    this.graphGoals.forEach((d) => {
+      this.legendData.push(d[d.length - 1]);
+    })
+  }
+
+  private buildChart() {
     var totalLines = this.goals.length + 1;
     var colors = this.getColorsArray(totalLines);
-    this.combined = this.combined.concat(this.logs);
-    var lineCount = 0;
-    var firstLog = this.logs[0];
 
-
-
-    // this.xAxis = D3.axisBottom(this.xScale);
-    // this.yAxis = D3.axisLeft(this.yScale);
-
-    // this.host.html('');
-
-    // let self = this;
     let calc = this.runCalc;
     let rgb = this.rgb;
     let getText = this.getText;
-
-    // this.svg = this.host.append('svg')
-    //   .attr('width', this.width + this.margin.left + this.margin.right)
-    //   .attr('height', this.height + this.margin.top + this.margin.bottom)
-
-    // var line = D3.line()
-    //   .curve(D3.curveLinear)
-    //   .x(function (d: any) { return self.xScale(new Date(d.date)); })
-    //   .y(function (d: any) { return self.yScale(calc.VO2Max(d)); });
-
-    // self.xScale.domain(D3.extent(this.combined, function (d: RunGoal) { return new Date(d.date); }));
-    // self.yScale.domain(D3.extent(this.combined, function (d: RunGoal) { return calc.VO2Max(d) }));
-
-    var graphGoals = new Array<Array<RunGoal>>();
-    this.goals.forEach((goal) => {
-      var progressToGoal = new Array<RunGoal>();
-      progressToGoal.push(firstLog);
-      progressToGoal.push(goal);
-      graphGoals.push(progressToGoal);
-    });
-    this.logs[this.logs.length-1].tags = new Array();
-    graphGoals.push(this.logs);
+    var graphGoals = this.graphGoals;
+    var activeGraphs = graphGoals.filter(x => x[x.length - 1].active);
+    var legendData = this.legendData;
 
     var w = 1250;
     var h = 600;
     var padding = 50;
 
-    var color_hash = {
-      0: ["apple", "green"],
-      1: ["mango", "orange"],
-      2: ["cherry", "red"]
-    }
-
     // Define axis ranges & scales        
-    var yExtents = D3.extent(D3.merge(graphGoals), function (d: RunGoal) { return calc.VO2Max(d) });
-    var xExtents = D3.extent(D3.merge(graphGoals), function (d: RunGoal) { return new Date(d.date); });
+    var yExtents = D3.extent(D3.merge(activeGraphs), function (d: RunGoal) { return calc.VO2Max(d) });
+    var xExtents = D3.extent(D3.merge(activeGraphs), function (d: RunGoal) { return new Date(d.date); });
 
     var xScale = D3.scaleTime()
       .domain([xExtents[0], xExtents[1]])
@@ -156,14 +153,13 @@ export class VO2MaxComponent implements AfterViewInit {
       .domain([0, yExtents[1]])
       .range([h - padding, padding]);
 
-
     // Create SVG element
     var svg = this.host
       .append("svg")
       .attr("width", w)
       .attr("height", h);
 
-    var graphSvg = svg  
+    var graphSvg = svg
       .append("svg")
       .attr("width", w - 300)
       .attr("height", h);
@@ -174,7 +170,7 @@ export class VO2MaxComponent implements AfterViewInit {
       .y(function (d) { return yScale(calc.VO2Max(d)); })
 
     var pathContainers = graphSvg.selectAll('g')
-      .data(graphGoals);
+      .data(activeGraphs);
 
     pathContainers.enter().append('g')
       .append('path')
@@ -184,13 +180,15 @@ export class VO2MaxComponent implements AfterViewInit {
 
     // add circles
     graphSvg.selectAll('g')
-      .data(graphGoals)
+      .data(activeGraphs)
       .selectAll('circle')
       .data(function (d) { return d; })
       .enter().append('circle')
+      .attr('class', 'circle')
+      .attr('stroke', function (d) { return rgb(colors[0]) })
       .attr('cx', function (d) { return xScale(new Date(d.date)); })
       .attr('cy', function (d) { return yScale(calc.VO2Max(d)); })
-      .attr('r', 3);
+      .attr('r', 5);
 
     //Define X axis
     var xAxis = D3.axisBottom(xScale)
@@ -218,59 +216,6 @@ export class VO2MaxComponent implements AfterViewInit {
       .attr("x", 20)
       .attr("y", 20)
       .text("Fruit Sold Per Hour");
-
-
-    // add legend   
-    var legend = svg.append("g")
-      .attr("class", "legend")
-      .attr("x", w - 300)
-      .attr("y", 25)
-      .attr("height", 300)
-      .attr("width", 300);
-
-    var legendData = new Array<RunGoal>();
-
-    graphGoals.forEach((d) => {
-      legendData.push(d[d.length - 1]);
-    })
-
-    legend.selectAll('g').data(legendData)
-      .enter()
-      .append('g')
-      .each(function (d, i) {
-        var g = D3.select(this);
-        g.append("rect")
-          .attr("x", w - 300)
-          .attr("y", i * 25+50)
-          .attr("width", 10)
-          .attr("height", 10)
-          .style("fill", rgb(colors[i]));
-
-        g.append("text")
-          .attr("x", w - 300 + 15)
-          .attr("y", i * 25 + 60)
-          .attr("height", 300)
-          .attr("width", 300)
-          .style("fill", rgb(colors[i]))
-          .text(getText(d, i));
-
-      });
-
-    // self.svg.append('path')
-    //   .datum(this.logs)
-    //   .attr('class', 'line')
-    //   .attr('d', line)
-    //   .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]));
-
-    // // add circles
-    // self.svg.selectAll('circle')
-    //   .data(this.logs)
-    //   .enter().append('circle')
-    //   .attr('cx', function (d) { return self.xScale(new Date(d.date)); })
-    //   .attr('cy', function (d) { return self.yScale(calc.VO2Max(d)); })
-    //   .attr('stroke', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
-    //   .attr('fill', this.rgb(colors[lineCount][0], colors[lineCount][1], colors[lineCount][2]))
-    //   .attr('r', 3);
   }
 
   graph(): void {

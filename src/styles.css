@@ -22,3 +22,16 @@
     fill: none !important;
     stroke-width: 1.5px !important;
   } 
+  .nomargin {
+    margin:0px !important;
+}
+
+.nomarginbot {
+    margin-bottom:0px !important;
+}
+.nomargintop {
+    margin-top:0px !important;
+}
+.nopad{
+    padding:0px !important;
+}

@@ -2,3 +2,14 @@
     fill: none !important;
     stroke-width: 1.5px !important;
   } 
+.filterpane{
+  height:100vh;
+  background-color: aliceblue;
+}
+.circle{
+  fill: none;
+  stroke-width: 2px;
+}
+.inactive{
+  opacity: .5;
+}

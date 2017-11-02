@@ -37,7 +37,7 @@
     </div>
     <div class="col s10 nopad scrollview">
       <ul class="collection runlog nopad nomargin col s12">
-        <li class="collection-item" [ngClass]="{'active':activeGoal._id == goal._id}" *ngFor="let goal of goals | customOrderBy: sortBy:asc">
+        <li (click)="changeGoal(goal)"class="collection-item" [ngClass]="{'active':activeGoal._id == goal._id}" *ngFor="let goal of goals | customOrderBy: sortBy:asc">
           <div class="row nomargin">
             <div class="col s2">
               Date {{goal.date | date:'yMd'}}
@@ -53,11 +53,6 @@
             </div>
             <div class="col s2">
               VO2Max: {{runCalc.VO2Max(goal)| number:'1.2-2'}}
-            </div>
-            <div class="col s2">
-              <div class="btn btn-flat" (click)="changeGoal(goal)">
-                Edit
-              </div>
             </div>
             <div class="col s2">
               <div class="btn btn-flat" (click)="deleteGoal(goal._id)">

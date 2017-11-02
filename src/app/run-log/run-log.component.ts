@@ -20,10 +20,12 @@ export class RunLogComponent implements OnChanges {
   constructor(private storage: StorageService, private runCalc: CalculationsService) { }
 
   deleteLog(id: string) {
-    this.storage.deleteRunLog(id);
-    this.storage.getRunLogs((err, doc) => {
-      this.logs = doc;
-    });
+    if (confirm("Are you sure you want to delete this record?")) {
+      this.storage.deleteRunLog(id);
+      this.storage.getRunLogs((err, doc) => {
+        this.logs = doc;
+      });
+    }
   }
   changeLog(log: RunLog) {
     this.changeSelectedLog.emit(log);

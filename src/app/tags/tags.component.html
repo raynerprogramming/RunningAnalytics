@@ -2,7 +2,7 @@
   <div class="col 12">
       <div class="chip" *ngFor="let tag of log.tags">
         {{tag.name}}
-        <i class="close material-icons">close</i>
+        <i *ngIf="removable" class="close material-icons" (click)="remove(tag)">close</i>
       </div>
   </div>
 </div>

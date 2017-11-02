@@ -18,10 +18,12 @@ export class GoalsListComponent implements OnChanges {
   constructor(private storage: StorageService, private runCalc: CalculationsService) { }
 
   deleteGoal(id: string) {
-    this.storage.deleteRunGoal(id);
-    this.storage.getRunGoals((err, doc) => {
-      this.goals = doc;
-    });
+    if (confirm("Are you sure you want to delete this record?")) {
+      this.storage.deleteRunGoal(id);
+      this.storage.getRunGoals((err, doc) => {
+        this.goals = doc;
+      });
+    }
   }
   changeGoal(goal: RunGoal) {
     this.changeSelectedGoal.emit(goal);

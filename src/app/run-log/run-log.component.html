@@ -1,7 +1,7 @@
 <div class="mainview nomargin">
   <div class="row nomargin">
-    <div class="toolbar-fixed red row nopad nomarginbot ">
-      <ul class="col s8 nomarginbot nomargintop">
+    <div class="toolbar-fixed red row nopad nomarginbot col s10">
+      <ul class="col s12 nomarginbot nomargintop">
         <li class="col s2 toolbar-item">
           <div (click)="changeSortBy('date')">Date
             <i *ngIf="sortBy=='date' && asc" class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
@@ -27,17 +27,19 @@
           </div>
         </li>
         <li class="col s2 toolbar-item">
-            <div (click)="changeSortBy('VO2Max')">VO2Max
-              <i *ngIf="sortBy=='VO2Max' && asc" class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
-              <i *ngIf="sortBy=='VO2Max' && !asc" class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
-            </div>
-          </li>
+          <div (click)="changeSortBy('VO2Max')">VO2Max
+            <i *ngIf="sortBy=='VO2Max' && asc" class="keyboard_arrow_down material-icons">keyboard_arrow_down</i>
+            <i *ngIf="sortBy=='VO2Max' && !asc" class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
+          </div>
+        </li>
+        <li class="col s2 toolbar-item">          
+        </li>
       </ul>
       <div class="col s2"></div>
     </div>
     <div class="col s10 nopad scrollview">
       <ul class="collection runlog nopad nomargin col s12">
-        <li class="collection-item" [ngClass]="{'active':activelog._id == log._id}" *ngFor="let log of logs | customOrderBy: sortBy:asc">
+        <li (click)="changeLog(log)" class="collection-item" [ngClass]="{'active':activelog._id == log._id}" *ngFor="let log of logs | customOrderBy: sortBy:asc">
           <div class="row nomargin">
             <div class="col s2">
               Date {{log.date | date:'yMd'}}
@@ -55,15 +57,12 @@
               VO2MAX: {{runCalc.VO2Max(log) | number:'1.2-2'}}
             </div>
             <div class="col s2">
-                <div class="btn btn-flat" (click)="changeLog(log)">
-                    Edit
-                  </div>
               <div class="btn btn-flat" (click)="deleteLog(log._id)">
                 Delete
               </div>
             </div>
           </div>
-          <app-tags [log]="log"></app-tags>
+          <app-tags [log]="log" [removable]="false"></app-tags>
         </li>
       </ul>
     </div>
