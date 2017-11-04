@@ -3,8 +3,12 @@ import { StorageService } from '../../storage.service';
 import { CalculationsService } from '../../calculations.service';
 import { RunLog } from "../../run-log"
 import { RunGoal } from "../../run-goal"
+import { RunGoalGraph } from "../../run-goal-graph"
 import * as D3 from "d3";
+import { event as currentEvent } from 'd3-selection';
 import * as moment from "moment";
+declare var jquery: any;
+declare var $: any;
 
 @Component({
   selector: 'app-vo2-max',
@@ -20,6 +24,7 @@ export class VO2MaxComponent implements AfterViewInit {
   }
 
   @ViewChild('container') element: ElementRef;
+  @ViewChild('tooltip') tooltip: ElementRef;
 
   private host;
   private svg;
@@ -30,16 +35,21 @@ export class VO2MaxComponent implements AfterViewInit {
   private yScale;
   private xAxis;
   private yAxis;
+  private tooltipX;
+  private tooltipY;
   private goals: RunGoal[];
-  private graphGoals: RunGoal[][];
-  private legendData: RunGoal[];
+  private graphGoals: RunGoalGraph[];
+  private legendData: RunGoalGraph[];
   private colors: string[];
   private logs: RunLog[];
+  private selectedGoal: RunGoal;
   private combined: RunGoal[] = new Array<RunGoal>();
   private htmlElement: HTMLElement;
+  private tooltipElement: HTMLElement;
   private CSS_COLOR_NAMES = ["AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey", "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray", "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke", "Yellow", "YellowGreen"];
   ngAfterViewInit() {
     this.htmlElement = this.element.nativeElement;
+    this.tooltipElement = this.tooltip.nativeElement;
     this.host = D3.select(this.htmlElement);
     this.setup();
   }
@@ -97,9 +107,18 @@ export class VO2MaxComponent implements AfterViewInit {
 
 
   }
-  private toggleActive(goal: RunGoal) {
-    this.goals.find(x => x.distance == goal.distance && x.date == goal.date && x.duration == goal.duration).active = !goal.active;
-    this.legendData.find(x => x.distance == goal.distance && x.date == goal.date && x.duration == goal.duration).active = !goal.active;
+  private toggleActive(goal: RunGoalGraph) {
+    var toggleGoal = this.graphGoals[this.graphGoals.indexOf(goal)];
+    toggleGoal.active = !toggleGoal.active;
+    var svg = this.host.select('svg');
+    svg.remove();
+    this.buildChart();
+  }
+  private setHover(goal: RunGoal) {
+    var toggleGoal = this.goals.find(x => x.distance == goal.distance && x.date == goal.date && x.duration == goal.duration);
+    if (toggleGoal) {
+      toggleGoal.active = !goal.active;
+    }
     var svg = this.host.select('svg');
     svg.remove();
     this.buildChartData();
@@ -110,31 +129,42 @@ export class VO2MaxComponent implements AfterViewInit {
     if (!this.goals || !this.logs) {
       return;
     }
-    this.legendData = new Array<RunGoal>();
-    this.graphGoals = new Array<Array<RunGoal>>();
+    this.legendData = new Array<RunGoalGraph>();
+    this.graphGoals = new Array<RunGoalGraph>();
+
     this.goals.forEach((goal) => {
       var progressToGoal = new Array<RunGoal>();
       progressToGoal.push(this.logs[0]);
       progressToGoal.push(goal);
-      this.graphGoals.push(progressToGoal);
+      var graphGoal = new RunGoalGraph();
+      graphGoal.active = true;
+      graphGoal.goals = progressToGoal;
+      this.graphGoals.push(graphGoal);
     });
     //this.logs[this.logs.length - 1].tags = new Array();
-    this.graphGoals.push(this.logs);
+    var logGraph = new RunGoalGraph();
+    logGraph.goals = this.logs;
+    logGraph.active = true;
+    this.graphGoals.push(logGraph);
 
     this.graphGoals.forEach((d) => {
-      this.legendData.push(d[d.length - 1]);
+      this.legendData.push(d);
     })
   }
 
   private buildChart() {
+    if (!this.graphGoals) {
+      return;
+    }
     var totalLines = this.goals.length + 1;
     var colors = this.getColorsArray(totalLines);
-
+    this.graphGoals.forEach((x, i) => {
+      x.color = colors[i];
+    })
     let calc = this.runCalc;
-    let rgb = this.rgb;
     let getText = this.getText;
     var graphGoals = this.graphGoals;
-    var activeGraphs = graphGoals.filter(x => x[x.length - 1].active);
+    var activeGraphs = this.getActiveGoals(this.graphGoals)
     var legendData = this.legendData;
 
     var w = 1250;
@@ -153,42 +183,47 @@ export class VO2MaxComponent implements AfterViewInit {
       .domain([0, yExtents[1]])
       .range([h - padding, padding]);
 
-    // Create SVG element
-    var svg = this.host
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h);
-
-    var graphSvg = svg
+    var graphSvg = this.host
       .append("svg")
       .attr("width", w - 300)
       .attr("height", h);
     // Define lines
-    var line = D3.line<RunGoal>()
+    var line = D3.line<RunGoal[]>()
       .curve(D3.curveLinear)
-      .x(function (d) { return xScale(new Date(d.date)); })
-      .y(function (d) { return yScale(calc.VO2Max(d)); })
+      .x(function (d, i) { return xFunc(d, i) })
+      .y(function (d, i) { return yFunc(d, i) })
+
+    var xFunc = function (d, i) {
+      return xScale(new Date(d.date));
+    }
+    var yFunc = function (d, i) {
+      return yScale(calc.VO2Max(d));
+    }
 
     var pathContainers = graphSvg.selectAll('g')
-      .data(activeGraphs);
-
-    pathContainers.enter().append('g')
+      .data(graphGoals.filter(x => x.active))
+      .enter()
+      .append('g')
+      .attr('stroke', function (d) { return d.color })
+      //.attr('fill', function (d) { return d.color })
       .append('path')
-      .attr('d', line)
-      .attr('class', 'line')
-      .attr('stroke', function (d) { return rgb(colors[graphGoals.indexOf(d)]) });
+      .attr('d', function (d) { return line(d.goals) })
+      .attr('class', 'line');
+
 
     // add circles
     graphSvg.selectAll('g')
-      .data(activeGraphs)
+      .data(graphGoals.filter(x => x.active))
       .selectAll('circle')
-      .data(function (d) { return d; })
+      .data(function (d) { return d.goals; })
       .enter().append('circle')
       .attr('class', 'circle')
-      .attr('stroke', function (d) { return rgb(colors[0]) })
+      .on("mouseover", (d, i) => this.handleMouseOver(d, i))
+      .on("mouseout", (d, i) => this.handleMouseOut(d, i))
+      .on("click", (d, i) => this.showToolTip(d))
       .attr('cx', function (d) { return xScale(new Date(d.date)); })
       .attr('cy', function (d) { return yScale(calc.VO2Max(d)); })
-      .attr('r', 5);
+      .attr('r', 3);
 
     //Define X axis
     var xAxis = D3.axisBottom(xScale)
@@ -217,24 +252,25 @@ export class VO2MaxComponent implements AfterViewInit {
       .attr("y", 20)
       .text("Fruit Sold Per Hour");
   }
-
-  graph(): void {
-
-  };
-
-  private type(d: any) {
-    const formatDate = D3.timeParse('%d-%b-%y');
-
-    d.date = formatDate(d.date);
-    d.close = +d.close;
-
-    return d;
+  handleMouseOver(d, i) {
+    var element = D3.select(event.srcElement);
+    element.transition()
+      .duration(250)
+      .attr('stroke-opacity', '.5')
+      .attr('stroke-width', '20px');
+  }
+  handleMouseOut(d, i) {
+    // Use D3 to select element, change color back to normal
+    var element = D3.select(event.srcElement)
+    element.transition()
+      .duration(250)
+      .attr('stroke-width', 2);
   }
   getColorsArray(total) {
     var i = 360 / (total - 1); // distribute the colors evenly on the hue range
     var r = []; // hold the generated colors
     for (var x = 0; x < total; x++) {
-      r.push(this.hsvToRgb(i * x, 100, 100)); // you can also alternate the saturation and value for even more contrast between the colors
+      r.push(this.rgb(this.hsvToRgb(i * x, 100, 100))); // you can also alternate the saturation and value for even more contrast between the colors
     }
     return r;
   }
@@ -322,5 +358,30 @@ export class VO2MaxComponent implements AfterViewInit {
   getText(d: any, i) {
     return d.tags ? "RunLog" : "Goal: " + moment(d.date).format("MM-DD-YYYY") + " distance: " + d.distance;
   }
+  getActiveGoals(graphGoals: RunGoalGraph[]): RunGoal[][] {
+    var goals = graphGoals.map(x => { return x.goals })
+    var activeGraphs = goals.filter(x => x[x.length - 1].active);
+    return activeGraphs;
+  }
+  showToolTip(d: RunGoal) {
+    D3.select(this.tooltipElement)
+      .transition()
+      .style('opacity', 1);
 
+    D3.select(this.tooltipElement)
+      .transition()
+      .delay(10000)
+      .duration(100)
+      .style('opacity', 0);
+
+    this.tooltipX = event["clientX"];
+    this.tooltipY = event["clientY"];
+    this.selectedGoal = d;
+  }
+  hideToolTip() {
+    D3.select(this.tooltipElement)
+      .transition()
+      .duration(100)
+      .style('opacity', 0);
+  }
 }

@@ -39,4 +39,11 @@ export class CalculationsService implements Calculations {
   isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
+  DurationToString(seconds:number){
+    var hours = seconds / 3600;
+    var minutes = seconds /60;
+    var seconds = seconds % 60;
+
+    return "HH: " + hours + " MM: " + minutes + " SS: " + seconds;
+  }
 }

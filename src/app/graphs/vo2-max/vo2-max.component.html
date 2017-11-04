@@ -1,13 +1,19 @@
 <div class="row nomarginbot">
     <div #container class="col s7"></div>
-    <div #container class="col s3 z-depth-2 filterpane nopad">
+    <div class="col s3 z-depth-2 filterpane nopad">
         <ul class="collection runlog nopad nomargin col s12">
-            <li class="collection-item" *ngFor="let legend of legendData; let i = index">
+            <li class="collection-item" *ngFor="let graphGoal of graphGoals; let i = index">
                 <div class="row nomargin">
-                    <div class="btn-floating btn-small left" [ngClass]="{'inactive':!legend.active}" (click)="toggleActive(legend)" [ngStyle]="{'background-color': rgb(colors[i])}"></div>
-                    <div class="col s10 right">{{legend.date}} {{legend.distance}}</div>
+                    <div class="btn-floating btn-small left" [ngClass]="{'inactive':!graphGoal.active}" (click)="toggleActive(graphGoal)" [ngStyle]="{'background-color': graphGoal.color}"></div>
+                    <div class="col s10 right">{{graphGoal.goals[1].date}} {{graphGoal.goals[1].distance}}</div>
                 </div>
             </li>
         </ul>
+    </div>
+    <div #tooltip [style.left.px]="tooltipX" [style.top.px]="tooltipY" class="tooltip">
+        <div *ngIf="selectedGoal">
+            <div>{{selectedGoal.date}}</div>
+            <div>{{runCalc.DurationToString(selectedGoal.duration)}} Distance: {{selectedGoal.distance}}</div>
+        </div>
     </div>
 </div>

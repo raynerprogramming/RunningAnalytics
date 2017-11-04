@@ -10,4 +10,5 @@ export class RunGoal {
     date: Date;
     vo2Max: number;
     active: boolean;
+    hover: boolean;
 }
