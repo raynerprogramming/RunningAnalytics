@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import {RunLog} from '../run-log'
-import {RunTag} from '../run-tag'
-import {StorageService} from '../storage.service'
+import { RunLog } from '../run-log'
+import { RunTag } from '../run-tag'
+import { StorageService } from '../storage.service'
 
 @Component({
   selector: 'app-runlogmaster',
@@ -9,21 +9,17 @@ import {StorageService} from '../storage.service'
   styleUrls: ['./runlogmaster.component.css']
 })
 export class RunlogmasterComponent implements OnInit {
-  logs:RunLog[];
-  tags:RunTag[];
-  log:RunLog;
+  logs: RunLog[];
+  tags: RunTag[];
+  log: RunLog;
   @Output() changeSelectedLog: EventEmitter<any> = new EventEmitter();
-  constructor(private storage:StorageService) {
-    this.log=new RunLog();
-    storage.getRunTags((err,doc)=>{
-      var tag = new RunTag();
-      tag.active=true;
-      tag.name="HIHI";
-      this.tags=doc;
-      this.tags.push(tag);
+  constructor(private storage: StorageService) {
+    this.log = new RunLog();
+    storage.getRunTags((err, doc) => {
+      this.tags = doc;
     });
-    storage.getRunLogs((err,doc)=>{
-      this.logs=doc;
+    storage.getRunLogs((err, doc) => {
+      this.logs = doc;
     });
   }
 
@@ -32,8 +28,8 @@ export class RunlogmasterComponent implements OnInit {
     console.log($event);
   }
   changeLogs($event) {
-      this.logs = $event;
-      console.log($event);
+    this.logs = $event;
+    console.log($event);
   }
   changeTags($event) {
     this.tags = $event;

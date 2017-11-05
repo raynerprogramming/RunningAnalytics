@@ -28,6 +28,9 @@ export class RunLogComponent implements OnChanges {
     }
   }
   changeLog(log: RunLog) {
+    if(!log.tags){
+      log.tags=new Array<RunTag>();
+    }
     this.changeSelectedLog.emit(log);
   }
   changeSortBy(sortBy: string) {

@@ -3,11 +3,12 @@ import { RunLog } from './run-log'
 import { RunTag } from './run-tag'
 import { RunGoal } from './run-goal'
 import { NedbService } from './nedb.service';
+import { CalculationsService } from './calculations.service';
 
 @Injectable()
 export class StorageService {
 
-  constructor(private storage: NedbService) { }  
+  constructor(private storage: NedbService, private runCalc: CalculationsService) { }  
 
   getRunLog(id:string): RunLog{
     return this.storage.getRunLog(id);

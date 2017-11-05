@@ -5,7 +5,7 @@ export class RunLog extends RunGoal {
     constructor(distance?:number, duration?:number, date?:Date,tags?:RunTag[])
     {
         super(distance,duration,date)
-        this.tags=tags;
+        this.tags=tags || new Array<RunTag>();
     }
     tags: RunTag[] = [];    
 }

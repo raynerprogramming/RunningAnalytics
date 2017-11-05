@@ -12,8 +12,13 @@
     </div>
     <div #tooltip [style.left.px]="tooltipX" [style.top.px]="tooltipY" class="tooltip">
         <div *ngIf="selectedGoal">
-            <div>{{selectedGoal.date}}</div>
-            <div>{{runCalc.DurationToString(selectedGoal.duration)}} Distance: {{selectedGoal.distance}}</div>
+            <div>{{selectedGoal.date}}
+                <div class="right">
+                    <i (click)="hideToolTip()" class="material-icons">close</i>
+                </div>
+            </div>
+            <div>{{runCalc.DurationToString(selectedGoal.duration)}}</div>
+            <div>Distance: {{selectedGoal.distance}}</div>
         </div>
     </div>
 </div>

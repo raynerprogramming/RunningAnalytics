@@ -71,6 +71,7 @@ export class VO2MaxComponent implements AfterViewInit {
     this.storage.getRunGoals((err, doc) => {
       this.goals = doc;
       this.goals.every(x => x.active = true);
+      this.goals.map((x) => x.vo2Max = this.runCalc.VO2Max(x));
       this.goals.sort((a: RunGoal, b: RunGoal) => {
         var momentA = moment(a.date);
         var momentB = moment(b.date);
@@ -82,7 +83,7 @@ export class VO2MaxComponent implements AfterViewInit {
         }
         return 0;
       })
-      var totalLines = this.goals.length + 1;
+      var totalLines = this.goals.length + 2;
       this.colors = this.getColorsArray(totalLines);
       this.buildChartData();
       this.buildChart();
@@ -90,6 +91,7 @@ export class VO2MaxComponent implements AfterViewInit {
     this.storage.getRunLogs((err, doc) => {
       this.logs = doc;
       this.logs.every(x => x.active = true);
+      this.logs.map((x) => x.vo2Max = this.runCalc.VO2Max(x));
       this.logs.sort((a: RunLog, b: RunLog) => {
         var momentA = moment(a.date);
         var momentB = moment(b.date);
@@ -104,8 +106,6 @@ export class VO2MaxComponent implements AfterViewInit {
       this.buildChartData();
       this.buildChart();
     });
-
-
   }
   private toggleActive(goal: RunGoalGraph) {
     var toggleGoal = this.graphGoals[this.graphGoals.indexOf(goal)];
@@ -150,13 +150,16 @@ export class VO2MaxComponent implements AfterViewInit {
     this.graphGoals.forEach((d) => {
       this.legendData.push(d);
     })
+    var activeGoals = this.goals.filter(x => x.active);
+    var maxDate = activeGoals[activeGoals.length - 1].date;
+    this.graphGoals.push(this.runCalc.GetTrendLine(logGraph, maxDate));
   }
 
   private buildChart() {
     if (!this.graphGoals) {
       return;
     }
-    var totalLines = this.goals.length + 1;
+    var totalLines = this.goals.length + 2;
     var colors = this.getColorsArray(totalLines);
     this.graphGoals.forEach((x, i) => {
       x.color = colors[i];
@@ -172,7 +175,7 @@ export class VO2MaxComponent implements AfterViewInit {
     var padding = 50;
 
     // Define axis ranges & scales        
-    var yExtents = D3.extent(D3.merge(activeGraphs), function (d: RunGoal) { return calc.VO2Max(d) });
+    var yExtents = D3.extent(D3.merge(activeGraphs), function (d: RunGoal) { return d.vo2Max });
     var xExtents = D3.extent(D3.merge(activeGraphs), function (d: RunGoal) { return new Date(d.date); });
 
     var xScale = D3.scaleTime()
@@ -197,7 +200,7 @@ export class VO2MaxComponent implements AfterViewInit {
       return xScale(new Date(d.date));
     }
     var yFunc = function (d, i) {
-      return yScale(calc.VO2Max(d));
+      return yScale(d.vo2Max);
     }
 
     var pathContainers = graphSvg.selectAll('g')
@@ -208,6 +211,12 @@ export class VO2MaxComponent implements AfterViewInit {
       //.attr('fill', function (d) { return d.color })
       .append('path')
       .attr('d', function (d) { return line(d.goals) })
+      .style("stroke-dasharray", function (d) {
+        if (d.projection) {
+          return ("3,3")
+        }
+        return null;
+      })
       .attr('class', 'line');
 
 
@@ -222,7 +231,7 @@ export class VO2MaxComponent implements AfterViewInit {
       .on("mouseout", (d, i) => this.handleMouseOut(d, i))
       .on("click", (d, i) => this.showToolTip(d))
       .attr('cx', function (d) { return xScale(new Date(d.date)); })
-      .attr('cy', function (d) { return yScale(calc.VO2Max(d)); })
+      .attr('cy', function (d) { return yScale(d.vo2Max); })
       .attr('r', 3);
 
     //Define X axis
@@ -365,7 +374,6 @@ export class VO2MaxComponent implements AfterViewInit {
   }
   showToolTip(d: RunGoal) {
     D3.select(this.tooltipElement)
-      .transition()
       .style('opacity', 1);
 
     D3.select(this.tooltipElement)
@@ -380,8 +388,6 @@ export class VO2MaxComponent implements AfterViewInit {
   }
   hideToolTip() {
     D3.select(this.tooltipElement)
-      .transition()
-      .duration(100)
       .style('opacity', 0);
   }
 }

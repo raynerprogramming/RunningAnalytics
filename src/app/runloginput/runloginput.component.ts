@@ -1,9 +1,11 @@
-import { Component, Input, OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, SimpleChange, EventEmitter } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { StorageService } from '../storage.service';
 import { CalculationsService } from '../calculations.service';
+import { MaterializeDirective, MaterializeAction } from "angular2-materialize";
 import { RunTag } from '../run-tag';
 import { RunLog } from '../run-log';
+declare var Materialize: any;
 
 @Component({
   selector: 'app-runloginput',
@@ -18,16 +20,20 @@ export class RunloginputComponent implements OnChanges {
   hours: number;
   seconds: number;
   selectedTag: RunTag;
-  constructor(private storage: StorageService,private runCalc: CalculationsService) {
+  modalActions1 = new EventEmitter<string | MaterializeAction>();
+
+  constructor(private storage: StorageService, private runCalc: CalculationsService) {
 
   }
-
+  toast(text: string, duration: number = 3000, style: string = "") {
+    Materialize.toast(text, duration, style);
+  }
   add(log) {
-    if (log._id) {   
+    if (log._id) {
       this.storage.updateRunLog(log);
       this.log = new RunLog();
       this.hours = 0;
-      this.minutes= 0;
+      this.minutes = 0;
       this.seconds = 0;
     } else {
       this.storage.createRunLog(log);
@@ -35,6 +41,10 @@ export class RunloginputComponent implements OnChanges {
   }
   createTag(name) {
     this.storage.createRunTag(this.newTag);
+  }
+  deleteTag(tag) {
+    this.storage.deleteRunTag(tag["_id"]);
+    this.toast("Tag: " + tag.name + " deleted successfully");
   }
   assignTag() {
     var index = this.log.tags.indexOf(this.selectedTag);
@@ -49,10 +59,10 @@ export class RunloginputComponent implements OnChanges {
     }
   }
   selectTag($event) {
-    this.selectedTag = this.tags.filter(function (obj) { return obj.name == $event.target.value })[0];
+    //this.selectedTag = this.tags.filter(function (obj) { return obj.name == $event.target.value })[0];
   }
   updateDuration($event) {
-    this.log.duration = this.runCalc.Duration(this.hours,this.minutes,this.seconds);
+    this.log.duration = this.runCalc.Duration(this.hours, this.minutes, this.seconds);
   }
   applyChanges(log) {
     if (this.log && this.log.duration) {
@@ -64,6 +74,9 @@ export class RunloginputComponent implements OnChanges {
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
     let msg: string[] = [];
     this.applyChanges(changes.currentValue);
+    if (this.tags) {
+      this.selectedTag = this.tags[0];
+    }
     for (let propName in changes) {
 
       let changedProp = changes[propName];
