@@ -254,12 +254,6 @@ export class VO2MaxComponent implements AfterViewInit {
       .attr("transform", "translate(" + padding + ",0)")
       .call(yAxis);
 
-    // Add title	  
-    graphSvg.append("svg:text")
-      .attr("class", "title")
-      .attr("x", 20)
-      .attr("y", 20)
-      .text("Fruit Sold Per Hour");
   }
   handleMouseOver(d, i) {
     var element = D3.select(event.srcElement);

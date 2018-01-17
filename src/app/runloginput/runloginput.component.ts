@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, SimpleChange, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, SimpleChange, EventEmitter, AfterViewChecked } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { StorageService } from '../storage.service';
 import { CalculationsService } from '../calculations.service';
@@ -12,7 +12,7 @@ declare var Materialize: any;
   templateUrl: './runloginput.component.html',
   styleUrls: ['./runloginput.component.css']
 })
-export class RunloginputComponent implements OnChanges {
+export class RunloginputComponent implements OnChanges, AfterViewChecked {
   @Input() log: RunLog;
   @Input() tags: RunTag[];
   newTag: RunTag = new RunTag();
@@ -24,6 +24,9 @@ export class RunloginputComponent implements OnChanges {
 
   constructor(private storage: StorageService, private runCalc: CalculationsService) {
 
+  }
+  ngAfterViewChecked() {
+    Materialize.updateTextFields();
   }
   toast(text: string, duration: number = 3000, style: string = "") {
     Materialize.toast(text, duration, style);

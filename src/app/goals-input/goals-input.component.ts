@@ -1,14 +1,16 @@
-import { Component, OnInit, OnChanges, SimpleChanges, SimpleChange, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, SimpleChange, Input, AfterViewChecked } from '@angular/core';
 import { StorageService } from '../storage.service';
 import { CalculationsService } from '../calculations.service';
 import { RunGoal } from '../run-goal';
+
+declare var Materialize: any;
 
 @Component({
   selector: 'app-goals-input',
   templateUrl: './goals-input.component.html',
   styleUrls: ['./goals-input.component.css']
 })
-export class GoalsInputComponent implements OnChanges {
+export class GoalsInputComponent implements OnChanges, AfterViewChecked {
   @Input() goal: RunGoal;
   minutes: number;
   hours: number;
@@ -29,6 +31,9 @@ export class GoalsInputComponent implements OnChanges {
         msg.push(`${propName} changed from ${from} to ${to}`);
       }
     }
+  }
+  ngAfterViewChecked() {
+    Materialize.updateTextFields();
   }
   add(goal) {
     if (goal._id) {

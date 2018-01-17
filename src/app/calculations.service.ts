@@ -86,7 +86,7 @@ export class CalculationsService implements Calculations {
       }
     }
     slopes.sort();
-    var slope = slopes[slopes.length / 2];
+    var slope = slopes[Math.floor(slopes.length / 2)];
     return slope;
   }
 
@@ -99,6 +99,6 @@ export class CalculationsService implements Calculations {
       intercepts.push(this.VO2Max(x) - slope * (dateX.diff(dateMin, 'days')));
     })
     intercepts.sort();
-    return intercepts[intercepts.length / 2];
+    return intercepts[Math.floor(intercepts.length / 2)];
   }
 }

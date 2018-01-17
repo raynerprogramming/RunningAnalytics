@@ -41,6 +41,9 @@ export class RunLogComponent implements OnChanges {
       this.asc = true;
     }
   }
+  export(){
+    var json = JSON.stringify(this.logs);
+  }
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
     let log: string[] = [];
     for (let propName in changes) {

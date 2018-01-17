@@ -32,10 +32,14 @@
             <i *ngIf="sortBy=='VO2Max' && !asc" class="keyboard_arrow_up material-icons">keyboard_arrow_up</i>
           </div>
         </li>
-        <li class="col s2 toolbar-item">          
+        <li class="col s2 toolbar-item">
+            <div class="btn" (click)="export()">Export
+              </div>
         </li>
       </ul>
-      <div class="col s2"></div>
+      <div class="col s2">
+        
+      </div>
     </div>
     <div class="col s10 nopad scrollview">
       <ul class="collection runlog nopad nomargin col s12">
