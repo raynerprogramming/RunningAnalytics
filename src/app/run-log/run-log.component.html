@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="col s10 nopad scrollview">
-      <ul class="collection runlog nopad nomargin col s12">
+      <ul *ngIf="logs" class="collection runlog nopad nomargin col s12">
         <li (click)="changeLog(log)" class="collection-item" [ngClass]="{'active':activelog._id == log._id}" *ngFor="let log of logs | customOrderBy: sortBy:asc">
           <div class="row nomargin">
             <div class="col s2">

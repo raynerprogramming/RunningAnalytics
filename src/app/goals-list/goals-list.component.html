@@ -36,7 +36,7 @@
       <div class="col s2"></div>
     </div>
     <div class="col s10 nopad scrollview">
-      <ul class="collection runlog nopad nomargin col s12">
+      <ul *ngIf="goals" class="collection runlog nopad nomargin col s12">
         <li (click)="changeGoal(goal)"class="collection-item" [ngClass]="{'active':activeGoal._id == goal._id}" *ngFor="let goal of goals | customOrderBy: sortBy:asc">
           <div class="row nomargin">
             <div class="col s2">
