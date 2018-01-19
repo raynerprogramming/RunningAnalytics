@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, SimpleChange, EventEmitter, AfterViewChecked } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChanges, SimpleChange, EventEmitter, AfterViewChecked } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { StorageService } from '../storage.service';
 import { CalculationsService } from '../calculations.service';
@@ -15,6 +15,7 @@ declare var Materialize: any;
 export class RunloginputComponent implements OnChanges, AfterViewChecked {
   @Input() log: RunLog;
   @Input() tags: RunTag[];
+  logs: RunLog[];
   newTag: RunTag = new RunTag();
   minutes: number;
   hours: number;
@@ -22,6 +23,7 @@ export class RunloginputComponent implements OnChanges, AfterViewChecked {
   selectedTag: RunTag;
   modalActions1 = new EventEmitter<string | MaterializeAction>();
 
+  @Output() updateLogsEmitter: EventEmitter<any> = new EventEmitter();
   constructor(private storage: StorageService, private runCalc: CalculationsService) {
 
   }
@@ -39,8 +41,9 @@ export class RunloginputComponent implements OnChanges, AfterViewChecked {
       this.minutes = 0;
       this.seconds = 0;
     } else {
-      this.storage.createRunLog(log);
-    }
+      this.storage.createRunLog(log);      
+    }    
+    this.updateLogsEmitter.emit(null);
   }
   createTag(name) {
     this.storage.createRunTag(this.newTag);

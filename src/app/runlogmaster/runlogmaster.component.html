@@ -1,2 +1,2 @@
-<app-runloginput [tags]="tags" [log]="log"></app-runloginput>
+<app-runloginput [tags]="tags" [log]="log" (updateLogsEmitter)="changeLogs($event)"></app-runloginput>
 <app-run-log [tags]="tags" [logs]="logs" [activelog]="log" (changeSelectedLog)="changeLog($event)"></app-run-log>

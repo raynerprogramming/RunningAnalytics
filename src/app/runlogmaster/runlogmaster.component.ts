@@ -18,17 +18,19 @@ export class RunlogmasterComponent implements OnInit {
     storage.getRunTags((err, doc) => {
       this.tags = doc;
     });
-    storage.getRunLogs((err, doc) => {
+    this.updateRunLogs();
+  }
+  updateRunLogs(){
+    this.storage.getRunLogs((err, doc) => {
       this.logs = doc;
     });
   }
-
   changeLog($event) {
     this.log = $event;
     console.log($event);
   }
-  changeLogs($event) {
-    this.logs = $event;
+  changeLogs($event) {    
+    this.updateRunLogs();
     console.log($event);
   }
   changeTags($event) {
